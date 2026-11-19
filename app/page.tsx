@@ -1,69 +1,102 @@
-import Image from "next/image";
+"use client";
+import { Input } from "@/components/Input";
+import { EmptyState } from "@/components/EmptyState";
+import { Tasks } from "@/components/Tasks";
+import { useState, MouseEvent } from "react";
+import { TaskType } from "@/types";
+import { TaskList } from "@/components/TaskList";
+import {ListTodo} from "lucide-react"
+
+
+const stateCategory = ["All", "Active", "Completed"];
 
 export default function Home() {
+  const [tasks, setTasks] = useState<TaskType[]>([]);
+  const hasTasks = tasks.length > 0 ? true : false
+
+  const [btton, setBtton] = useState("All");
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    setBtton(event.currentTarget.id);
+  };
+
+  const createTask = (title: string) => {
+    const newTask: TaskType = {
+      id: Date.now().toString(),
+      title,
+      completed: false,
+    };
+
+    setTasks((current) => [newTask, ...current]);
+  };
+
+  const toggleTask = (id: string) => {
+    setTasks((current) =>
+      current.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task,
+      ),
+    );
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks((current) => current.filter((task) => task.id !== id));
+  };
+
+  const filtered = tasks.filter(
+    (state) =>
+      btton === "All" ||
+      (btton === "Active" ? !state.completed : state.completed),
+  );
+  const hidePage = filtered.length > 0 ? "hidden" : "flex"
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="w-screen h-screen bg-[#F1F4F1] p-12 space-y-8 flex flex-col justify-center items-center ">
+      <div className="text-3xl text-[#213D35] font-semibold">
+        Little List / Todo app
+      </div>
+      <div className="text-base text-[#65766C] font-normal ">
+        Desktop · Mobile · Task rows · Input and checkbox states
+      </div>
+      <div className="w-2xl bg-white rounded-3xl ">
+        <div className="flex mt-8 ml-8 mb-8 items-center gap-3 ">
+          <div className="size-11 bg-[#E5F2ED] rounded-2xl flex justify-center items-center">
+            <ListTodo color="#23735A" />
+          </div>
+          <div className="text-6 text-[#213D35] font-semibold  ">My tasks.</div>
+        </div>
+        <Input onCreateTask={createTask} />
+        <div className="h-14.25 pl-130.25 pt-3 ">
+          <div className="text-xs text-[#7A8881] font-normal ">
+            Enter to add a task
+          </div>
+        </div>
+        <div className="w-full h-12 flex px-8 justify-between items-center rounded-md ">
+          <div className="flex gap-7">
+            {stateCategory.map((bttn) => (
+              <button
+                onClick={handleClick}
+                id={bttn}
+                className={
+                  btton === bttn
+                    ? "text-sm text-[#236B53] font-semibold cursor-pointer border-[0px_0px_2px_0px] border-[#236B53] "
+                    : "text-sm text-[#7B8680] font-semibold cursor-pointer "
+                }
+              >
+                {bttn}
+              </button>
+            ))}
+          </div>
+          <div className="bg-[#F0F4F1] h-5.5 p-1 flex justify-center items-center ">
+            {filtered.length}
+          </div>
+        </div>
+        <div className="w-full h-px bg-[#E9EEEB] mb-2 "></div>
+        <EmptyState hasTasks={hasTasks} hidePage={hidePage}/>
+        <TaskList
+          tasks={filtered}
+          onDelete={deleteTask}
+          onUpdate={toggleTask}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
