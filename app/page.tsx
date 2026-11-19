@@ -74,11 +74,12 @@ export default function Home() {
             {stateCategory.map((bttn) => (
               <button
                 onClick={handleClick}
+                key={bttn}
                 id={bttn}
                 className={
                   btton === bttn
-                    ? "text-sm text-[#236B53] font-semibold cursor-pointer border-[0px_0px_2px_0px] border-[#236B53] "
-                    : "text-sm text-[#7B8680] font-semibold cursor-pointer "
+                    ? "text-sm text-[#236B53] h-full font-semibold cursor-pointer border-b-2 border-[#236B53] "
+                    : "text-sm text-[#7B8680] h-full font-semibold cursor-pointer border-b-2 border-transparent "
                 }
               >
                 {bttn}
